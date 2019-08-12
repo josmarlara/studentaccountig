@@ -1,0 +1,227 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:p="http://primefaces.org/ui">
+     
+    <h:head>
+    <title>Balance general en forma de reporte</title>
+    </h:head>
+ 
+    <h:body>
+    <script  type="text/javascript">
+
+
+        PrimeFaces.locales['es'] = {
+                closeText: 'Cerrar',
+                prevText: 'Anterior',
+                nextText: 'Siguiente',
+                monthNames: ['Enero','Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+                monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+                dayNames: ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],
+                dayNamesShort: ['Dom','Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'],
+                dayNamesMin: ['D','L','M','M','J','V','S'],
+                weekHeader: 'Semana',
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: false,
+                yearSuffix: '',
+                timeOnlyTitle: 'Sólo hora',
+                timeText: 'Tiempo',
+                hourText: 'Hora',
+                minuteText: 'Minuto',
+                secondText: 'Segundo',
+                currentText: 'Fecha actual',
+                ampm: false,
+                month: 'Mes',
+                week: 'Semana',
+                day: 'Día',
+                allDayText : 'Todo el día'
+        };
+        
+        </script>
+        <style type="text/css">
+    .value {
+        font-weight: bold;
+    }
+</style>
+ <h:form>
+ <p:breadCrumb>
+    <p:menuitem value="Home" action="index" />
+    <p:menuitem value="Ayuda Teórica"  outcome="balancediagrama.xhtml"  target="_blank"  />
+    
+</p:breadCrumb>
+ </h:form>
+ 
+        <p:layout style="min-width:200px;min-height:1200px;">
+   
+  
+    <p:layoutUnit position="center">
+   
+        <p:fieldset legend="Balace general en forma de reporte" style="margin-bottom:20px">
+        <h:panelGrid columns="1" cellpadding="5">
+            
+            <h:outputText
+                value="En este apartado podrás generar tu balace general en forma de reporte" />
+        </h:panelGrid>
+    </p:fieldset>
+       <h:form id="form1">
+       
+       <p:growl id="messages" showDetail="true"/>
+           
+             
+                <h:panelGrid columns="2" columnClasses="label, value">
+                    <h:outputLabel for="empresa" value="Nombre de la empresa:" style="font-weight:bold" />
+       <p:inputText id="empresa" value="#{balance.empresa}" >
+       </p:inputText>
+        
+         <p:outputLabel for="inline" value="Fecha del ejercicio:" />
+        <p:calendar id="inline" value="#{balance.fecha}" showOn="button"  pattern="yyyy-MM-dd" locale="es">
+         
+         </p:calendar>
+        
+         <p:outputLabel for="tipoCuenta" value="Tipo de cuenta:" />
+        <p:selectOneMenu id="tipoCuenta" value="#{balance.tipoCuenta}" style="width:125px">
+            <f:selectItem itemLabel="Activo Circulante" itemValue="1.Activo Circulante" />
+            <f:selectItem itemLabel="Activo Fijo" itemValue="2.Activo Fijo" />
+            <f:selectItem itemLabel="Cargos diferidos" itemValue="3.Cargos Diferidos" />
+            <f:selectItem itemLabel="Pasivo Circulante " itemValue="4.Pasivo Circulante o Flotante" />
+            <f:selectItem itemLabel="Pasivo Fijo" itemValue="5.Pasivo Fijo o Consolidado" />
+            <f:selectItem itemLabel="Créditos diferidos" itemValue="6.Créditos Diferidos" />
+            <f:selectItem itemLabel="Capital Contable" itemValue="7.Capital Contable" /> 
+        </p:selectOneMenu>
+        <h:outputLabel for="nombreCuenta" value="Nombre de la Cuenta:" style="font-weight:bold" />
+       <p:inputText id="nombreCuenta" value="#{balance.nombreCuenta}" required="true">
+       </p:inputText>
+        
+       
+                </h:panelGrid>
+          
+ 
+        
+       <p:commandButton value="AgregarCuerpoReporte" action="#{balance.agregarReporte}" update="display" />
+        <p:commandButton value="Generar Encabezado" update="display" action="#{balance.mostrarFecha}"  />
+       <p:commandButton value="LimpiarReporte" action="#{balance.limpiarReporte}" update="display" />            
+                   
+        <p:commandButton value="Imprimir Reporte" type="button" icon="pi pi-print" style="display:block;margin-bottom: 20px">
+    <p:printer target="display" />
+</p:commandButton>           
+       
+       
+       
+       
+       
+       
+       
+           
+        
+        
+        
+     
+        <p:dataTable  id="display"  var="reporte"  value="#{balance.reportes}"   sortBy="#{reporte.cuenta}" expandableRowGroups="true" editable="true">
+        
+        
+        
+         <f:facet name="header">
+         <h:outputText  value="#{balance.empresa}" /> 
+        </f:facet>
+         <p:columnGroup type="header">  
+        <p:row>  
+            
+            <p:column colspan="6" headerText="#{balance.fechaBalance}"/>  
+        </p:row>  
+      
+         
+    </p:columnGroup>  
+      <p:headerRow>
+            <p:column colspan="6">
+                <h:outputText value="#{reporte.cuenta}" />
+            </p:column>
+        </p:headerRow>
+         
+        
+         <p:ajax event="rowEdit" listener="#{balance.onEdit}" update=":form1:messages" />  
+                    <p:ajax event="rowEditCancel" listener="#{balance.onCancel}" update=":form1:messages" />          
+         
+  
+        <p:column>
+                        
+                        <p:cellEditor>  
+                            <f:facet name="output">  
+                                <h:outputText value="#{reporte.concepto}" />  
+                            </f:facet>  
+                            <f:facet name="input">  
+                                <p:inputText value="#{reporte.concepto}" style="width:100%"/>  
+                            </f:facet>  
+                        </p:cellEditor> 
+                    </p:column>
+                      <p:column>
+                       
+                        <p:cellEditor>  
+                            <f:facet name="output">  
+                                <h:outputText value="#{reporte.renglon1}" />  
+                            </f:facet>  
+                            <f:facet name="input">  
+                                <p:inputText value="#{reporte.renglon1}" style="width:100%"/>  
+                            </f:facet>  
+                        </p:cellEditor>
+                    </p:column>
+                    <p:column>
+                       
+                        <p:cellEditor>  
+                            <f:facet name="output">  
+                                <h:outputText value="#{reporte.cantidad}" />  
+                            </f:facet>  
+                            <f:facet name="input">  
+                                <p:inputText value="#{reporte.cantidad}" style="width:100%"/>  
+                            </f:facet>  
+                        </p:cellEditor>
+                    </p:column>
+                    <p:column>
+                        
+                        <p:cellEditor>  
+                            <f:facet name="output">  
+                                <h:outputText value="#{reporte.renglon3}" />  
+                            </f:facet>  
+                            <f:facet name="input">  
+                                <p:inputText value="#{reporte.renglon3}" style="width:100%"/>  
+                            </f:facet>  
+                        </p:cellEditor>
+                    </p:column>
+                  
+                    <p:column>
+                        
+                        <p:cellEditor>  
+                            <f:facet name="output">  
+                                <h:outputText value="#{reporte.renglon4}" />  
+                            </f:facet>  
+                            <f:facet name="input">  
+                                <p:inputText value="#{reporte.renglon4}" style="width:100%"/>  
+                            </f:facet>  
+                        </p:cellEditor>
+                    </p:column>
+                   <p:column>  
+                        <p:rowEditor />  
+                    </p:column> 
+          <p:columnGroup type="footer">  
+        <p:row>  
+                
+            <p:column colspan="2" style="text-align:right" footerText="Propietario:________________________" />
+            <p:column colspan="2" style="text-align:right" footerText="Gerente:________________________" />   
+            <p:column colspan="2" style="text-align:right" footerText="Contador:________________________" />
+            </p:row>  
+      
+         
+    </p:columnGroup>  
+      
+        </p:dataTable>
+       
+       </h:form>
+       
+       
+       
+       
+       
+    </p:layoutUnit>
+</p:layout>
+    </h:body>
+</html>
